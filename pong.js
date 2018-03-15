@@ -52,16 +52,43 @@ Game.prototype.update = function(){
    if (this.paused) return;
 
 
-   if (this.keys.isPressed(83)) { // DOWN
-       this.p1.y = Math.min(this.height - this.p1.height, this.p1.y + 4);
-   } else if (this.keys.isPressed(87)) { // UP
-       this.p1.y = Math.max(0, this.p1.y - 4);
+   // if (this.keys.isPressed(83)) { // DOWN
+   //     this.p1.y = Math.min(this.height - this.p1.height, this.p1.y + 4);
+   // } else if (this.keys.isPressed(87)) { // UP
+   //     this.p1.y = Math.max(0, this.p1.y - 4);
+   // }
+
+   var p2PaddleCenter = 0
+   if( this.ball.vy > 0){ //Ball is going down
+     p2PaddleCenter = this.p2.y+5
+   }else{
+     p2PaddleCenter = this.p2.y + paddleSize-5
    }
 
-   if (this.keys.isPressed(40)) { // DOWN
-       this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
-   } else if (this.keys.isPressed(38)) { // UP
-       this.p2.y = Math.max(0, this.p2.y - 4);
+   var p1PaddleCenter = 0
+   if( this.ball.vy > 0){ //Ball is going down
+     p1PaddleCenter = this.p1.y+5
+   }else{
+     p1PaddleCenter = this.p1.y + paddleSize-5
+   }
+
+   // if (this.keys.isPressed(40)) { // DOWN
+   //     this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
+   // } else if (this.keys.isPressed(38)) { // UP
+   //     this.p2.y = Math.max(0, this.p2.y - 4);
+   // }
+
+   if(this.ball.y > p2PaddleCenter){
+     //console.log(this.p2.y)
+     this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
+   }else if(this.ball.y < p2PaddleCenter){  //Moving up.. This is good.
+     this.p2.y = Math.max(0, this.p2.y - 4);
+   }
+   if(this.ball.y > p1PaddleCenter){
+     //console.log(this.p2.y)
+     this.p1.y = Math.min(this.height - this.p1.height, this.p1.y + 4);
+   }else if(this.ball.y < p1PaddleCenter){  //Moving up.. This is good.
+     this.p1.y = Math.max(0, this.p1.y - 4);
    }
 
    this.ball.update();
