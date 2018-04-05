@@ -1,4 +1,5 @@
 var paddleSize = 42;
+var speed =24
 
 function Game() {
     var canvas = document.getElementById("game");
@@ -20,20 +21,21 @@ function Game() {
     this.ball = new Ball();
     this.ball.x = this.width/2;
     this.ball.y = this.height/2;
-    this.ball.vy = Math.floor(Math.random()*12 - 6);
+    this.ball.vy = Math.floor(Math.random()*speed) + speed/2;
     this.ball.vx = 7 - Math.abs(this.ball.vy);
 }
 Game.prototype.score = function(p){
     // player scores
     p.score++;
     var player = p == this.p1 ? 0 : 1;
+    sound({effect:"score"});
 
     // set ball position
     this.ball.x = this.width/2;
     this.ball.y = p.y + p.height/2;
 
     // set ball velocity
-    this.ball.vy = Math.floor(Math.random()*12 - 6);
+    this.ball.vy = Math.floor(Math.random()*speed) + speed/2;
     this.ball.vx = 7 - Math.abs(this.ball.vy);
     if (player == 1)
         this.ball.vx *= -1;
@@ -58,20 +60,26 @@ Game.prototype.update = function(){
    //     this.p1.y = Math.max(0, this.p1.y - 4);
    // }
 
-   var p2PaddleCenter = 0
-   if( this.ball.vy > 0){ //Ball is going down
-     p2PaddleCenter = this.p2.y+5
-   }else{
-     p2PaddleCenter = this.p2.y + paddleSize-5
+   //This is moving the player 2 paddle
+
+   if(this.ball.vx > 0){
+
+     var p2PaddleCenter = 0
+     if( this.ball.vy > 0){ //Ball is going down
+       p2PaddleCenter = this.p2.y+5
+     }else{
+       p2PaddleCenter = this.p2.y + paddleSize-5
+     }
    }
 
+    if(this.ball.vx < 0){
    var p1PaddleCenter = 0
    if( this.ball.vy > 0){ //Ball is going down
      p1PaddleCenter = this.p1.y+5
    }else{
      p1PaddleCenter = this.p1.y + paddleSize-5
    }
-
+}
    // if (this.keys.isPressed(40)) { // DOWN
    //     this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
    // } else if (this.keys.isPressed(38)) { // UP
@@ -110,6 +118,7 @@ Game.prototype.update = function(){
                    this.ball.vx = -this.ball.vx;
 
                    this.ball.vy = this.ball.vy+fudge;
+                   sound({effect:"rightpaddle"});
                }
            }
        } else {
@@ -124,6 +133,7 @@ Game.prototype.update = function(){
                    this.ball.vx = -this.ball.vx;
 
                    this.ball.vy = this.ball.vy+fudge;
+                   sound({effect:"leftpaddle"});
                }
            }
        }
@@ -132,6 +142,7 @@ Game.prototype.update = function(){
        if ((this.ball.vy < 0 && this.ball.y < 0) ||
                (this.ball.vy > 0 && this.ball.y + this.ball.height > this.height)) {
            this.ball.vy = -this.ball.vy;
+           sound({effect:"wall"});
        }
 
 
@@ -141,6 +152,24 @@ Game.prototype.update = function(){
           this.score(this.p2);
 
 };
+
+function sound(options){
+  console.log(options.effect)
+  if(options.effect == "rightpaddle"){
+    new Audio("boop.wav").play();
+  }
+  if(options.effect == "leftpaddle"){
+    new Audio("diing.wav").play();
+  }
+  if(options.effect == "wall"){
+    var sound = new Audio("uhhh.wav")
+    sound.volume=.5
+    sound.play();
+  }
+  if(options.effect == "score"){
+    new Audio("ohyeah.wav").play();
+  }
+}
 
 function Display(x, y) {
     this.x = x;
