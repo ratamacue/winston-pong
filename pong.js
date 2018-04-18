@@ -1,5 +1,13 @@
-var paddleSize = 42;
-var speed =24
+var paddleSize = 40;
+var speed = 10
+var ballSpeed = function(){
+  function random(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+  var randomNumber = random(4,8);
+  console.log("Ball Speed = "+randomNumber);
+  return randomNumber;
+}
 
 function Game() {
     var canvas = document.getElementById("game");
@@ -21,13 +29,24 @@ function Game() {
     this.ball = new Ball();
     this.ball.x = this.width/2;
     this.ball.y = this.height/2;
-    this.ball.vy = Math.floor(Math.random()*speed) + speed/2;
-    this.ball.vx = 7 - Math.abs(this.ball.vy);
+    this.throwBall();
 }
+
+Game.prototype.throwBall = function(p){
+
+
+  var player = p == this.p1 ? 0 : 1;
+  this.ball.vy = ballSpeed();
+  this.ball.vx = Math.abs(this.ball.vy)+1;
+
+
+    if (player == 1)
+        this.ball.vx *= -1;
+}
+
 Game.prototype.score = function(p){
     // player scores
     p.score++;
-    var player = p == this.p1 ? 0 : 1;
     sound({effect:"score"});
 
     // set ball position
@@ -35,10 +54,9 @@ Game.prototype.score = function(p){
     this.ball.y = p.y + p.height/2;
 
     // set ball velocity
-    this.ball.vy = Math.floor(Math.random()*speed) + speed/2;
-    this.ball.vx = 7 - Math.abs(this.ball.vy);
-    if (player == 1)
-        this.ball.vx *= -1;
+      this.throwBall(p);
+
+
 };
 Game.prototype.draw = function(){
     this.context.clearRect(0, 0, this.width, this.height);
@@ -52,6 +70,7 @@ Game.prototype.draw = function(){
 
 Game.prototype.update = function(){
    if (this.paused) return;
+   let paddlespeed = (2/3) * speed ;
 
 
    // if (this.keys.isPressed(83)) { // DOWN
@@ -80,23 +99,25 @@ Game.prototype.update = function(){
      p1PaddleCenter = this.p1.y + paddleSize-5
    }
 }
-   // if (this.keys.isPressed(40)) { // DOWN
-   //     this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
-   // } else if (this.keys.isPressed(38)) { // UP
-   //     this.p2.y = Math.max(0, this.p2.y - 4);
+   if (this.keys.isPressed(40)) { // DOWN
+       this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + paddlespeed);
+   } else if (this.keys.isPressed(38)) { // UP
+       this.p2.y = Math.max(0, this.p2.y - paddlespeed);
+   }
+
+   // if(this.ball.y > p2PaddleCenter){
+   //   //console.log(this.p2.y)
+   //   this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + paddlespeed);
+   // }else if(this.ball.y < p2PaddleCenter){  //Moving up.. This is good.
+   //   this.p2.y = Math.max(0, this.p2.y - paddlespeed);
    // }
 
-   if(this.ball.y > p2PaddleCenter){
-     //console.log(this.p2.y)
-     this.p2.y = Math.min(this.height - this.p2.height, this.p2.y + 4);
-   }else if(this.ball.y < p2PaddleCenter){  //Moving up.. This is good.
-     this.p2.y = Math.max(0, this.p2.y - 4);
-   }
+
    if(this.ball.y > p1PaddleCenter){
      //console.log(this.p2.y)
-     this.p1.y = Math.min(this.height - this.p1.height, this.p1.y + 4);
+     this.p1.y = Math.min(this.height - this.p1.height, this.p1.y + paddlespeed);
    }else if(this.ball.y < p1PaddleCenter){  //Moving up.. This is good.
-     this.p1.y = Math.max(0, this.p1.y - 4);
+     this.p1.y = Math.max(0, this.p1.y - paddlespeed);
    }
 
    this.ball.update();
@@ -111,7 +132,7 @@ Game.prototype.update = function(){
                var collisionDiff = this.ball.x + this.ball.width - this.p2.x;
                var k = collisionDiff/this.ball.vx;
                var y = this.ball.vy*k + (this.ball.y - this.ball.vy);
-               if (y >= this.p2.y && y + this.ball.height <= this.p2.y + this.p2.height) {
+               if (y >= this.p2.y && y + this.ball.height <= this.p2.y + this.p2.height+5) {
                    // collides with right paddle
                    this.ball.x = this.p2.x - this.ball.width;
                    this.ball.y = Math.floor(this.ball.y - this.ball.vy + this.ball.vy*k);
